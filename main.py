@@ -1,10 +1,11 @@
 from pprint import pprint
-sample = [[10,20,200,200], 
-          [20,30,145,100], 
-          [30,40,255,230],
-          [10,20,100,100]]
+example = [[0 ,0  ,0  ,0  ,230], 
+          [0  ,0  ,0  ,210,0], 
+          [0  ,0  ,255,220,223],
+          [0  ,220,0  ,0  ,0],
+          [250,0  ,0  ,0  ,0]]
 
-def calcDeriv(table):
+def calc_derivatives(table):
     pprint(table)
     Deriv_N = 5*(table[0][0] + table[0][1] + table[0][2]) - 3*(table[1][0] + table[1][2] + table[2][0] + table[2][1] + table[2][2])
     Deriv_NE = 5*(table[0][1] + table[0][2] + table[1][2]) - 3*(table[0][0] + table[1][0] + table[2][0] + table[2][1] + table[2][2])
@@ -25,14 +26,62 @@ def calcDeriv(table):
         direction = "no edge"
     return derivDict, direction
 
+def make_edge_map(sample):
+    output = []
+    for x in range(0, len(sample)):
+        preSend=[]
+        for y in range(0, len(sample[x])):
+            preSend.append("no edge")
+        output.append(preSend)
 
-if __name__ == "__main__":
     sendTable = [[0,0,0],[0,0,0],[0,0,0]]
     for i in range(1, len(sample)-1):
-        for j in range (1, len(sample)-1):
+        for j in range (1, len(sample[0])-1):
             for m in range(0, 3):
                 for n in range(0, 3):
-                    print(i, j, m, n)
                     sendTable[m][n] = sample[i+m-1][j+n-1]
-            print(calcDeriv(sendTable))
+            print(calc_derivatives(sendTable))
+            output[i][j] = calc_derivatives(sendTable)[1]
             sendTable=[[0,0,0],[0,0,0],[0,0,0]]
+    return output
+
+if __name__ == "__main__":
+    edge_map = make_edge_map(example)
+    print(edge_map)
+    rendered = []
+    for x in range(0, len(edge_map)):
+        preSend=[]
+        for y in range(0, len(edge_map[x])):
+            preSend.append(0)
+        rendered.append(preSend)
+    for a in range(0, len(edge_map)):
+        for b in range(0, len(edge_map[a])):
+            if edge_map[a][b] == "E":
+                rendered[a-1][b+1] += 70
+                rendered[a][b+1] += 70
+                rendered[a+1][b+1] += 70
+            if edge_map[a][b] == "W":
+                rendered[a-1][b-1] += 70
+                rendered[a][b-1] += 70
+                rendered[a+1][b-1] += 70
+            if edge_map[a][b] == "N":
+                rendered[a-1][b-1] += 70
+                rendered[a-1][b] += 70
+                rendered[a-1][b+1] += 70
+            if edge_map[a][b] == "S":
+                rendered[a+1][b-1] += 70
+                rendered[a+1][b] += 70
+                rendered[a+1][b+1] += 70
+            if edge_map[a][b] == "NE":
+                rendered[a-1][b+1] += 70
+            if edge_map[a][b] == "NW":
+                rendered[a-1][b-1] += 70
+            if edge_map[a][b] == "SE":
+                rendered[a+1][b+1] += 70
+            if edge_map[a][b] == "SW":
+                rendered[a+1][b-1] += 70
+    for c in range(0, len(rendered)):
+        for d in range(0, len(rendered[c])): 
+            if rendered[c][d] > 255:
+                rendered[c][d] = 255
+    print(rendered)
