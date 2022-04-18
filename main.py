@@ -1,20 +1,39 @@
 from pprint import pprint
-example = [[0 ,0  ,0  ,0  ,230], 
-          [0  ,0  ,0  ,210,0], 
-          [0  ,0  ,255,220,223],
-          [0  ,220,0  ,0  ,0],
-          [250,0  ,0  ,0  ,0]]
+from PIL import Image
+im= Image.new('RGB', (6, 6))
+img = Image.new('RGB', (6,6))
+
+example = [[0 ,0  ,0  ,0  ,230, 149], 
+          [0  ,0  ,0  ,210,243, 223], 
+          [0  ,0  ,255,220,223, 200],
+          [0  ,0  ,255  ,215  ,255,190],
+          [0  ,0  ,255  ,133  ,192,190],
+          [0  ,0  ,255  ,248  ,193,190]]
+
+[[0, 0, 0, 0, 0, 0], 
+[0, 0, 0, 0, 0, 0], 
+[0, 0, 140, 255, 0, 0],
+[0, 0, 210, 140, 70, 0], 
+[0, 0, 140, 0, 0, 0], 
+[0, 0, 0, 70, 0, 0]]
+
+[['no edge', 'no edge', 'no edge', 'no edge', 'no edge', 'no edge'], 
+['no edge', 'SE', 'SE', 'S', 'SW', 'no edge'], 
+['no edge', 'E', 'E', 'W', 'W', 'no edge'], 
+['no edge', 'E', 'N', 'W', 'N', 'no edge'], 
+['no edge', 'E', 'N', 'W', 'no edge', 'no edge'], 
+['no edge', 'no edge', 'no edge', 'no edge', 'no edge', 'no edge']]
 
 def calc_derivatives(table):
     pprint(table)
-    Deriv_N = 5*(table[0][0] + table[0][1] + table[0][2]) - 3*(table[1][0] + table[1][2] + table[2][0] + table[2][1] + table[2][2])
-    Deriv_NE = 5*(table[0][1] + table[0][2] + table[1][2]) - 3*(table[0][0] + table[1][0] + table[2][0] + table[2][1] + table[2][2])
-    Deriv_E = 5*(table[0][2] + table[1][2] + table[2][2]) - 3*(table[0][1] + table[0][0] + table[1][0] + table[2][0] + table[2][1])
-    Deriv_SE = 5*(table[1][2] + table[2][1] + table[2][2]) - 3*(table[0][0] + table[0][1] + table[0][2] + table[1][0] + table[2][0])
-    Deriv_S = 5*(table[2][0] + table[2][1] + table[2][2]) - 3*(table[0][0] + table[0][1] + table[0][2] + table[1][0] + table[1][2])
-    Deriv_SW = 5*(table[1][0] + table[2][0] + table[2][1]) - 3*(table[0][0] + table[0][1] + table[0][2] + table[1][2] + table[2][2])
-    Deriv_W = 5*(table[0][0] + table[1][0] + table[2][0]) - 3*(table[0][1] + table[0][2] + table[1][2] + table[2][1] + table[2][2])
-    Deriv_NW = 5*(table[0][0] + table[0][1] + table[1][0]) - 3*(table[0][2] + table[1][2] + table[2][0] + table[2][1] + table[2][2])
+    Deriv_N = 5*(table[0][0] + (7/5)*table[0][1] + table[0][2]) - 3*(table[1][0] + table[1][2] + table[2][0] + table[2][1] + table[2][2])
+    Deriv_NE = 5*(table[0][1] + (7/5)*table[0][2] + table[1][2]) - 3*(table[0][0] + table[1][0] + table[2][0] + table[2][1] + table[2][2])
+    Deriv_E = 5*(table[0][2] + (7/5)*table[1][2] + table[2][2]) - 3*(table[0][1] + table[0][0] + table[1][0] + table[2][0] + table[2][1])
+    Deriv_SE = 5*(table[1][2] + (7/5)*table[2][2] + table[2][1]) - 3*(table[0][0] + table[0][1] + table[0][2] + table[1][0] + table[2][0])
+    Deriv_S = 5*(table[2][0] + (7/5)*table[2][1] + table[2][2]) - 3*(table[0][0] + table[0][1] + table[0][2] + table[1][0] + table[1][2])
+    Deriv_SW = 5*(table[1][0] + (7/5)*table[2][0] + table[2][1]) - 3*(table[0][0] + table[0][1] + table[0][2] + table[1][2] + table[2][2])
+    Deriv_W = 5*(table[0][0] + (7/5)*table[1][0] + table[2][0]) - 3*(table[0][1] + table[0][2] + table[1][2] + table[2][1] + table[2][2])
+    Deriv_NW = 5*((7/5)*table[0][0] + table[0][1] + table[1][0]) - 3*(table[0][2] + table[1][2] + table[2][0] + table[2][1] + table[2][2])
     derivDict = {'W':Deriv_W, 'NW':Deriv_NW, 'N':Deriv_N, 'NE':Deriv_NE, 'E':Deriv_E, 'SE':Deriv_SE, 'S':Deriv_S, 'SW':Deriv_SW}
     max_number = 0
     direction = ""
@@ -22,8 +41,9 @@ def calc_derivatives(table):
         if v > max_number:
             max_number = v
             direction = k
-    if max_number <= 800:
+    if max_number <= 383:
         direction = "no edge"
+    
     return derivDict, direction
 
 def make_edge_map(sample):
@@ -57,21 +77,21 @@ if __name__ == "__main__":
     for a in range(0, len(edge_map)):
         for b in range(0, len(edge_map[a])):
             if edge_map[a][b] == "E":
-                rendered[a-1][b+1] += 70
+                #rendered[a-1][b+1] += 70
                 rendered[a][b+1] += 70
-                rendered[a+1][b+1] += 70
+                #rendered[a+1][b+1] += 70
             if edge_map[a][b] == "W":
-                rendered[a-1][b-1] += 70
+                #rendered[a-1][b-1] += 70
                 rendered[a][b-1] += 70
-                rendered[a+1][b-1] += 70
+                #rendered[a+1][b-1] += 70
             if edge_map[a][b] == "N":
-                rendered[a-1][b-1] += 70
+                #rendered[a-1][b-1] += 70
                 rendered[a-1][b] += 70
-                rendered[a-1][b+1] += 70
+                #rendered[a-1][b+1] += 70
             if edge_map[a][b] == "S":
-                rendered[a+1][b-1] += 70
+                #rendered[a+1][b-1] += 70
                 rendered[a+1][b] += 70
-                rendered[a+1][b+1] += 70
+                #rendered[a+1][b+1] += 70
             if edge_map[a][b] == "NE":
                 rendered[a-1][b+1] += 70
             if edge_map[a][b] == "NW":
@@ -85,3 +105,18 @@ if __name__ == "__main__":
             if rendered[c][d] > 255:
                 rendered[c][d] = 255
     print(rendered)
+    sendList = list()
+    sendList2 = list()
+    for v in range(0, len(example)):
+        for w in range(0, len(example[v])):
+            value = example[v][w]
+            sendList.append((value, value, value))
+    im.putdata(sendList)
+    im.save('initial.png')
+
+    for x in range(0, len(rendered)):
+        for y in range(0, len(rendered[x])):
+            value = rendered[x][y]
+            sendList2.append((value, value, value))
+    img.putdata(sendList2)
+    img.save('final.png')
